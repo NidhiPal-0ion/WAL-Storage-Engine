@@ -1,99 +1,75 @@
 # WAL Storage Engine
 
-A fault-tolerant storage engine written in modern **C++23** implementing a **Write-Ahead Logging (WAL)** architecture for durable event persistence, deterministic crash recovery, and asynchronous metadata indexing.
-
-The project implements:
-
-* Append-Only Binary Write-Ahead Logging
-* Sequential File Persistence
-* Batched In-Memory Buffering
-* SQLite Metadata Indexing
-* Crash Recovery via WAL Replay
-* Multithreaded Background Indexing
-* Python Monitoring Dashboard
+A fault-tolerant **Write-Ahead Logging (WAL) Storage Engine** built in **C++23** for durable event persistence, asynchronous metadata indexing, and deterministic crash recovery. The project implements append-only binary logging, batched in-memory buffering, SQLite-based metadata indexing, and a Python dashboard for monitoring log activity and recovery execution.
 
 ---
 
-# Features
+## Features
 
-## Storage Engine
+### Write-Ahead Logging (WAL)
 
-Implements a durable Write-Ahead Logging (WAL) storage engine using append-only binary files.
+- Append-only binary transaction logging
+- Sequential file persistence
+- Packed binary transaction serialization
+- Batched in-memory buffering
+- Automatic buffer flushing
 
-Features:
+### Crash Recovery
 
-* Append-only transaction logging
-* Binary serialization
-* Sequential file persistence
-* Batched in-memory buffering
-* Automatic buffer flushing
+- WAL replay for state reconstruction
+- Deterministic recovery mechanism
+- Binary log parsing
+- Active state rebuilding
 
----
+### Metadata Indexing
 
-## Crash Recovery
+- SQLite metadata database
+- Transaction ID indexing
+- File offset tracking
+- Transaction volume calculation
+- Background asynchronous indexing
 
-Reconstructs application state by replaying the Write-Ahead Log.
+### Concurrency
 
-Supports:
+- Producer-consumer architecture
+- Dedicated background indexing thread
+- Thread-safe buffering
+- Condition-variable based task scheduling
 
-* WAL replay
-* State reconstruction
-* Binary log parsing
-* Deterministic recovery
+### Monitoring Dashboard
 
----
-
-## Metadata Indexing
-
-Stores transaction metadata separately for efficient lookup and analytics.
-
-Features:
-
-* SQLite metadata database
-* Transaction indexing
-* File offset tracking
-* Transaction volume storage
-* Background asynchronous indexing
-
----
-
-## Monitoring Dashboard
-
-Python-based dashboard for monitoring storage engine activity.
-
-Displays:
-
-* Total transactions
-* Total processed volume
-* WAL file size
-* Indexed records
-* Recovery execution
-* Storage metrics
+- Streamlit-based dashboard
+- Transaction statistics
+- WAL size monitoring
+- Indexed record visualization
+- Recovery execution from dashboard
 
 ---
 
 # System Architecture
 
 ```text
-                 Client Transactions
-                         │
-                         ▼
-                 WAL Storage Engine
-                         │
-                 In-Memory Buffer
-                         │
-                Batch Buffer Flush
-                         │
-                         ▼
-            Append-Only Binary WAL
-                         │
-          ┌──────────────┴──────────────┐
-          ▼                             ▼
-   Recovery Engine            SQLite Metadata
-          │                             │
-          └──────────────┬──────────────┘
-                         ▼
-            Python Monitoring Dashboard
+                  Client Transactions
+                          │
+                          ▼
+                  WAL Storage Engine
+                          │
+             In-Memory Transaction Buffer
+                          │
+                  Batch Flush Threshold
+                          │
+                          ▼
+               Append-Only Binary WAL
+                          │
+          ┌───────────────┴───────────────┐
+          ▼                               ▼
+   Recovery Engine              Background Indexer
+          │                               │
+          ▼                               ▼
+  State Reconstruction            SQLite Metadata
+                  └───────────────┬───────────────┘
+                                  ▼
+                     Streamlit Monitoring Dashboard
 ```
 
 ---
@@ -101,44 +77,23 @@ Displays:
 # Project Structure
 
 ```text
-WAL Storage Engine
-│
-├── include/
-│   ├── config/
-│   ├── metadata/
-│   ├── serializer/
-│   ├── utils/
-│   └── wal/
-│
-├── src/
-│   ├── config/
-│   ├── metadata/
-│   ├── utils/
-│   ├── wal/
-│   └── main.cpp
-│
-├── dashboard/
-│   └── app.py
-│
-├── database/
-│   └── metadata.db
-│
-├── logs/
-│   ├── wal.log
-│   └── system.log
-│
-├── config.ini
-│
-└── README.md
+WAL-Storage-Engine/
+
+│── main.cpp
+│── engine.exe
+│── app.py
+│── metadata.db
+│── wal.log
+│── README.md
 ```
 
 ---
 
 # Build
 
-### Compile (Windows - MSYS2 / MinGW)
+Compile using GCC:
 
-```powershell
+```bash
 g++ -std=c++23 main.cpp -lsqlite3 -o engine.exe
 ```
 
@@ -146,36 +101,63 @@ g++ -std=c++23 main.cpp -lsqlite3 -o engine.exe
 
 # Run
 
-### Run the Storage Engine
+Generate sample transactions and create the WAL.
+
+```bash
+./engine.exe
+```
+
+Windows
 
 ```powershell
 .\engine.exe
 ```
 
-### Recover from WAL
+---
+
+# Launch Dashboard
+
+```bash
+streamlit run app.py
+```
+
+The dashboard displays:
+
+- Total Transactions
+- Total Volume Processed
+- WAL File Size
+- Indexed Records
+- Recovery Status
+
+It also allows simulation of crash recovery directly from the interface.
+
+---
+
+# Recovery
+
+Recover application state from the Write-Ahead Log.
+
+```bash
+./engine.exe --recover
+```
+
+Windows
 
 ```powershell
 .\engine.exe --recover
 ```
 
-### Launch Dashboard
-
-```powershell
-streamlit run app.py
-```
-
 ---
 
-# Dashboard
+# Technologies Used
 
-The monitoring dashboard displays:
-
-* Total Transactions
-* Total Processed Volume
-* WAL File Size
-* Indexed Records
-* Recovery Status
-* Storage Analytics
+- C++23
+- SQLite3
+- Python
+- Streamlit
+- STL
+- Multithreading
+- Binary Serialization
 
 ---
 
@@ -183,40 +165,30 @@ The monitoring dashboard displays:
 
 This project demonstrates concepts used in:
 
-* Storage Engines
-* Database Systems
-* Write-Ahead Logging (WAL)
-* Crash Recovery
-* Fault-Tolerant Systems
-* Backend Infrastructure
-* Financial Trading Infrastructure
-* System Design
+- Storage Engines
+- Database Systems
+- Write-Ahead Logging (WAL)
+- Fault-Tolerant Systems
+- Crash Recovery
+- Backend Infrastructure
+- Financial Trading Infrastructure
+- System Design
 
 ---
 
 # Future Improvements
 
-* Snapshot-Based Recovery
-* Log Rotation
-* Performance Benchmarking
-* Configurable Storage Parameters
-* Advanced Dashboard Analytics
-* Comprehensive Unit Testing
-
----
-
-# Technologies Used
-
-* C++23
-* SQLite
-* Python
-* Streamlit
-* STL
-* Multithreading (`std::thread`)
-* Binary Serialization
+- Log Rotation
+- Snapshot-Based Recovery
+- Performance Benchmarking
+- Configurable Buffer Size
+- Persistent Configuration Files
+- Advanced Dashboard Analytics
+- Unit Testing Framework
+- Multi-WAL File Support
 
 ---
 
 # Author
 
-Nidhi
+**Nidhi**
